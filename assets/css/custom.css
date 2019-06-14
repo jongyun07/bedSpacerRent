@@ -1,0 +1,12 @@
+
+  @keyframes blink {
+    from { }
+    to { opacity:.5; 
+    /* background-color:maroon; */
+    }
+  }
+ 
+  .blink_me {
+     /* color: green; */
+     animation: blink 1s steps(10) infinite alternate;   
+  }
