@@ -27,7 +27,6 @@
       echo  $calculation;
     }
     public function getValueRoomDiscrepancyC(){
-      // $data = $this->user_model->getValueM($this->input->post('getRoomNo'));
       $getRoomValue= $this->user_model->getRoomValueM($this->input->post('getTenantId'));
       $getUpdatedRoomValue= $this->user_model->getUpdatedRoomValueM($this->input->post('getRoomNo'));
       $data['amount'] = $getUpdatedRoomValue['room_value']/2;
@@ -232,5 +231,9 @@
       );
       $this->user_model->editMonitorPaymentStatusInfoM($data['monitor_payment_status'],$editId);
     } 
+    public function paymentTransactionC($roomNo){
+      $tenantsByRoom = $this->user_model->getRoomListRecordByRoom($roomNo);
+      echo json_encode(tenantsByRoom);
+    }
   } 
 ?>

@@ -9,7 +9,7 @@ $(document).ready(function() {
     $("#add_room_no").change(function(){
         var getRoomNo = $('#add_room_no').val(); 
         $.ajax({
-            url : "http://localhost/Jong/index.php/main/getInitialValueC",
+            url : "http://localhost/bedSpacerRent/index.php/main/getInitialValueC",
             type: "POST",
             data: {getRoomNo:getRoomNo},
                 success: function(data)
@@ -24,14 +24,14 @@ $(document).ready(function() {
         var getTenantId = $('#edit_id').val(); 
         $('#notice-section').remove();
         $.ajax({
-            url : "http://localhost/Jong/index.php/main/getRoomFloorC",
+            url : "http://localhost/bedSpacerRent/index.php/main/getRoomFloorC",
             type: "POST",
             data: {getRoomNo:getRoomNo,getTenantId:getTenantId},
                 success: function(data)
                 {   var floor = JSON.parse(data);
                     if(floor.getRoomFloor == floor.getUpdatedRoomFloor){
                         $.ajax({
-                            url : "http://localhost/Jong/index.php/main/getValueC",
+                            url : "http://localhost/bedSpacerRent/index.php/main/getValueC",
                             type: "POST",
                             data: {getRoomNo:getRoomNo},
                                 success: function(data)
@@ -43,7 +43,7 @@ $(document).ready(function() {
                     }else{
                         
                         $.ajax({
-                            url : "http://localhost/Jong/index.php/main/getValueRoomDiscrepancyC",
+                            url : "http://localhost/bedSpacerRent/index.php/main/getValueRoomDiscrepancyC",
                             type: "POST",
                             data: {getRoomNo:getRoomNo,getTenantId:getTenantId},
                                 success: function(data)
@@ -113,7 +113,7 @@ $(document).ready(function() {
 //         $('.tenantDelete').attr('onclick',`deleteRec('${id}')`);
 //         $('.tenantDelete').on('click',function(){
 //             $.ajax({
-//                 url : "http://localhost/Jong/index.php/main/delete/"+ id,
+//                 url : "http://localhost/bedSpacerRent/index.php/main/delete/"+ id,
 //                 type: "POST",
 //                 data: id, 
 //                 success: function(data)
@@ -126,7 +126,7 @@ $(document).ready(function() {
 
 function addTenant(){  
     $.ajax({
-        url : "http://localhost/Jong/index.php/main/addTenantC",
+        url : "http://localhost/bedSpacerRent/index.php/main/addTenantC",
         type: "POST",
         data: $(".add-modal").serializeArray(),
             success: function(data)
@@ -140,7 +140,7 @@ function addByRoom(roomNo){
 //   var arr = $(".addTenantByRoom").serializeArray()
     
     $.ajax({
-        url : "http://localhost/Jong/index.php/main/addTenantByRoomC/" + roomNo,
+        url : "http://localhost/bedSpacerRent/index.php/main/addTenantByRoomC/" + roomNo,
         type: "POST",
         data: $(".addTenantByRoom").serializeArray(),
             success: function(data)
@@ -153,7 +153,7 @@ function addByRoom(roomNo){
 function editTenant(id){
     $('#notice-section').remove();
     $.ajax({
-        url : "http://localhost/Jong/index.php/main/getTenantEditInfoC/" + id,
+        url : "http://localhost/bedSpacerRent/index.php/main/getTenantEditInfoC/" + id,
         type: "GET",
         datatype: "JSON",
             success: function(data)
@@ -176,7 +176,7 @@ function editTenant(id){
 function updateTenant(){         
     console.log($(".update-modal").serializeArray());
     $.ajax({
-        url : "http://localhost/Jong/index.php/main/updateTenantC",
+        url : "http://localhost/bedSpacerRent/index.php/main/updateTenantC",
         type: "POST",
         data: $(".update-modal").serializeArray(),
             success: function(data)
@@ -189,6 +189,14 @@ function paymentTransaction(roomNo){
 $('#viewCalculation .modal-title').append("<span id='roomNumber'>"+roomNo+"</span>");
 $("#tenantsInfo").modal('toggle');
 $('#viewCalculation').modal('show');
+    $.ajax({
+        url : "http://localhost/bedSpacerRent/index.php/main/paymentTransactionC/" + roomNo,
+        type: "GET",
+        datatype: "JSON",
+            success: function(data){
+                var res = JSON.parse(data);
+            }
+    });
 }
 
 function viewRoomDetails(room_no,room_space){
@@ -196,7 +204,7 @@ function viewRoomDetails(room_no,room_space){
     $('#filteredTend tr').remove();
     $('#addTenantByRoom .modal-title').remove();
     $.ajax({
-        url : "http://localhost/Jong/index.php/main/tenantsFilterByRoomC/" + room_no,
+        url : "http://localhost/bedSpacerRent/index.php/main/tenantsFilterByRoomC/" + room_no,
         type: "GET",
         datatype: "JSON",
             success: function(data)
@@ -244,7 +252,7 @@ function addRoomNoInModal(rNo){
     $('#rn').val(rNo);
     $('#addTenantByRoom .modal-header').prepend("<h4 class='modal-title'>"+rNo+"</h4>");
     $.ajax({
-        url : "http://localhost/Jong/index.php/main/getInitialAndDueDateC/" + rNo,
+        url : "http://localhost/bedSpacerRent/index.php/main/getInitialAndDueDateC/" + rNo,
         type: "GET",
         datatype: "JSON",
             success: function(data)
