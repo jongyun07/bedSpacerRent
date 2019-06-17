@@ -52,7 +52,7 @@
                         <div class="form-group">
                             <label class="control-label col-sm font-weight-bold">Current Electricity</label>
                             <div class="col-md">
-                                <input name="edit_month_current_kwh" placeholder="KWH" class="form-control" type="text" style="width:200px;">   
+                                <input name="edit_month_current_kwh" readonly class="form-control" type="text" style="width:200px;">   
                             </div>  
                         </div>
 
@@ -185,8 +185,7 @@
                     <thead class="thead-dark">
                         <tr class="table100-head">
                         <th class="column1 disable-sorting">#</th>
-                        <th class="column2">First name</th>
-                        <th class="column3">Last name</th>
+                        <th class="column2">Full Name</th>
                         <th class="column3">Phone Number</th>
                         </tr>
                     </thead>
@@ -316,26 +315,14 @@
 
             <!-- Modal body -->
             <div class="modal-body">              
-                <form class="deleteTenant">
-                    <div class="form-group">
-                    <div class="col-md">
-                    <label class="control-label col-sm font-weight-bold d-inline">Current Electricity(kwh):</label><input type="text" style="width:150px;" class="d-inline form-control" placeholder="kwh"> 
+                <div class="col-md">
+                    <label class="control-label col-sm font-weight-bold d-inline">Current Electricity(kwh):</label>
+                    <input type="text" style="width:150px;" class="d-inline form-control" placeholder="kwh"> 
                     <button type="button" class="mb-1 btn btn-success"><i class="fas fa-calculator"></i></button>   
-                    </div>        
-                        <hr>
-                    <div class="col-md pl-5">
-                        <pre>Tenant/s                : <b>Jong Yun Kim </b><br></pre>
-                        <pre>Monthly Rent            : <b>P 800 </b><br></pre>
-                        <pre>Electricity Last Month  : <b>6.50 kwh</b><br></pre>
-                        <pre>Electricity This Month  : <b>10.00 kwh</b><br></pre>
-                        <pre>Total Electricity Charge: <b>P 45.00</b><br></pre>
-                        <pre>Water Bill              : <b>P 100</b><br></pre>
-                        <pre>Total Payment           : <b>P 945.00</b><br></pre>
-                    </div>
-                        <hr>
-                        
-                    </div>                                                                                         
-                </form>                  
+                </div>        
+                    <hr>
+                    <div class="details-body">
+                    </div>                                                                                 
             </div>
 
             <!-- Modal footer -->
