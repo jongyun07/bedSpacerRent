@@ -63,7 +63,6 @@
 
         $this->user_model->addOccupancyM($this->input->post('add_room_number'),$this->input->post('add_electricity_kwh'));  
         $getRoomId = $this->user_model->getRoomIdM($this->input->post('add_room_number'));
-        // $waterBill = $this->user_model->getWaterBillM($getRoomId);
 
         $data['tenant'] = array(
             'room_id' => $getRoomId['id'],  
@@ -93,11 +92,12 @@
           'bill_calculation_id' => $billCalculationId,
           'date_paid' => $currentDate,
           'due_date' => $currentDate,
-          'total_amount' => $day,
+          'total_amount' => $this->user_model->getTotalAmountM($data['initial_bills_calculation']),
           'type' => "Initial Payment",
       );
       $this->user_model->addTransactionHistoryM($data['transaction_history']);     
     } 
+
     public function addTenantByRoomC($roomNo){
       $this->user_model->addOccupancyM($roomNo);  
         $getRoomId = $this->user_model->getRoomIdM($roomNo);

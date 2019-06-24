@@ -68,15 +68,15 @@ class User extends CI_Controller {
 			$totalRoomCapacity = 0;
 			$totalRoomOccupancy= 0;
 			for ($i=0; $i < count($data['roomLists']) ;	 $i++) { 
-				$totalRoomCapacity = $totalRoomCapacity + $data['roomLists'][$i]['room_capacity'];
-				$totalRoomOccupancy = $totalRoomOccupancy + $data['roomLists'][$i]['room_occupied'];
-				if($data['roomLists'][$i]['room_occupied'] > 0){
-					$getDueDate = $this->user_model->getRoomCurrentDueDate($data['roomLists'][$i]['id']);
-					$data['roomLists'][$i] = array_merge($data['roomLists'][$i],array( 'actual_due_date' => $getDueDate ));
-				}
-				else{				
-					$data['roomLists'][$i] = array_merge($data['roomLists'][$i],array('actual_due_date' => ''));
-				}
+				$totalRoomCapacity = $totalRoomCapacity + $data['roomLists'][$i]['capacity'];
+				$totalRoomOccupancy = $totalRoomOccupancy + $data['roomLists'][$i]['occupied'];
+			// 	if($data['roomLists'][$i]['occupied'] > 0){
+			// 		$getDueDate = $this->user_model->getRoomCurrentDueDate($data['roomLists'][$i]['id']);
+			// 		$data['roomLists'][$i] = array_merge($data['roomLists'][$i],array( 'actual_due_date' => $getDueDate ));
+			// 	}
+			// 	else{				
+			// 		$data['roomLists'][$i] = array_merge($data['roomLists'][$i],array('actual_due_date' => ''));
+			// 	}
 			}
 			$data['occupiedRoom'] = $totalRoomOccupancy;
 			$data['roomTotalAvailable'] =  $totalRoomCapacity - $totalRoomOccupancy;

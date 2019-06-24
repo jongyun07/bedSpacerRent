@@ -129,7 +129,10 @@
         public function getTotalAmountM($billCalculationInfo){
             $query = $this->db->get_where('bill_calculation',$billCalculationInfo);
             $result = $query->row_array();
-            $computation = (($result['month_current_kwh']-$result['month_before_kwh'])*15) + $result['monthly_payment'];
+            $parkingFee = $result['parking_fee'] == 1? 300 : 0;
+            $waterBill = $result['water_bill'] == 1? 100 : 0;
+            $discount = $result['water_bill'] == 1? 200 : 0;
+            $computation = ((($result['month_current_kwh']-$result['month_before_kwh'])*15) + $result['monthly_payment']+$parkingFee+$waterBill)-$discount;
             return $computation;
         }
         // public function getWaterBillM($roomId){
