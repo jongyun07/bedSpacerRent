@@ -27,7 +27,7 @@
 						<form id="logForm">
 							<fieldset>
 								<div class="form-group">
-									<input class="form-control" placeholder="Email" type="text" name="email">
+									<input class="form-control" placeholder="Username" type="text" name="username">
 								</div>
 								<div class="form-group">
 									<input class="form-control" placeholder="Password" type="password" name="password">

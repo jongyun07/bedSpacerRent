@@ -32,11 +32,13 @@
                         $secs = $date2 - $date1;
                         $days = $secs / 86400;
                         $blinkMe = $days <= 10 && $days >=1  ? "blink_me" : "";
-                        $box_color = $room['room_occupied'] >= $room['room_capacity'] ? "btn-danger" : "btn-success";
+                        $delayed = $days < 0 && $room['room_occupied'] != 0? "Delayed" : "";
+                        $box_color = $room['room_occupied'] >= $room['room_capacity'] ? "btn-warning" : "btn-success";
                         if($room['floor']==1){
                         ?> 
                         
                         <button class="btn <?php echo $box_color." ".$blinkMe;?>" id="roomCapacity" style="margin:5px;font-size:20px; width:190px; height:190px;" onclick="viewRoomDetails('<?php echo $room['room_no']?>','<?php echo $room['room_capacity']-$room['room_occupied'];?>')">
+                        <b style="font-size:14px;"><?php echo $delayed;?></b> <br>
                         <b><?php echo $room['room_no']?></b><br>
                         <b style="font-size:14px;"> Occupied Space:  <?php echo $room['room_occupied'];?></b> 
                         <b style="font-size:14px;"> Available Space:  <?php echo $room['room_capacity']-$room['room_occupied'];?></b> 

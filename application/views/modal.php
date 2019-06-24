@@ -69,6 +69,10 @@
                                 <input readonly id="edit_due_date" name="edit_due_date" class="form-control" style="width:200px;" />
                             </div>
                         </div>
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="exampleCheck1">
+                            <label class="form-check-label" for="exampleCheck1">Check me out</label>
+                        </div>
 
                         <div class="form-group"id="notice">
                         </div>
@@ -122,14 +126,14 @@
                         <div class="form-group">
                             <label class="control-label col-sm font-weight-bold">Room #</label>
                             <div class="col-md">
-                            <select name="add_room_no" class="form-control" id="add_room_no" data-live-search="true" style="width:200px;">
+                            <select name="add_room_number" class="form-control" id="add_room_number" data-live-search="true" style="width:200px;">
                                 <option disabled selected  style="color:#999999;">Room #</option>                                            
                                 <?php foreach ($roomLists as $roomlist ){
-                                    $disable = $roomlist['room_occupied'] < $roomlist['room_capacity'] ? "" : "disabled";
-                                    $notAvailable = $roomlist['room_occupied'] < $roomlist['room_capacity'] ? "" : "Not Available";
-                                    $color = $roomlist['room_occupied'] < $roomlist['room_capacity'] ? "dark" : "danger";
+                                    $disable = $roomlist['occupied'] < $roomlist['capacity'] ? "" : "disabled";
+                                    $notAvailable = $roomlist['occupied'] < $roomlist['capacity'] ? "" : "Not Available";
+                                    $color = $roomlist['occupied'] < $roomlist['capacity'] ? "dark" : "danger";
                                     ?>
-                                    <option value="<?php echo $roomlist['room_no'];?>" class="text-<?php echo $color;?>" <?php echo $disable;?>> <?php echo $roomlist['room_no'];?> <?php echo $notAvailable;?> </option>
+                                    <option value="<?php echo $roomlist['room_number'];?>" class="text-<?php echo $color;?>" <?php echo $disable;?>> <?php echo $roomlist['room_number'];?> <?php echo $notAvailable;?> </option>
                                 <?php }?>
                             </select>
                             </div>
@@ -138,24 +142,28 @@
                         <div class="form-group">
                             <label class="control-label col-sm font-weight-bold">Current Electricity</label>
                             <div class="col-md">
-                                <input name="add_month_current_kwh" placeholder="KWH" class="form-control" type="text" style="width:200px;">   
+                                <input name="add_electricity_kwh" placeholder="KWH" class="form-control" type="text" style="width:200px;">   
                             </div>  
                         </div>
 
                         <div class="form-group">
                             <label class="control-label col-sm font-weight-bold">Initial Payment</label>
                             <div class="col-md">
-                                <input readonly value ="₱ 0.00" name="add_monthly_payment" class="form-control" type="text" style="width:200px;">   
+                                <input readonly value ="₱ 0.00" name="add_initial_payment" class="form-control" type="text" style="width:200px;">   
                             </div>  
                         </div>
 
                         <div class="form-group" id="addDateType">
-                            <label class="control-label col-sm font-weight-bold">Due Date</label>
+                            <label class="control-label col-sm font-weight-bold">Board Date</label>
                             <div class="col-md">
-                                <input readonly id="add_due_date" name="add_due_date" class="form-control" style="width:200px;" />
+                                <input readonly id="add_board_date" name="add_board_date" class="form-control" style="width:200px;" />
                             </div>
                         </div>
-
+                        
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="parkingfee" name="add_parking_fee" value="1">
+                            <label class="form-check-label" for="parkingfee">With Parking</label></label>
+                        </div>
                     </div>                                                            
                 </form>                  
             </div>
@@ -214,7 +222,7 @@
 
             <!-- Modal body -->
             <div class="modal-body" style="padding-left: 38px;">  
-            <form class="addTenantByRoom">
+                <form class="addTenantByRoom">
                     <div class="row">
                         <div class="form-group">
                             <label class="control-label col-sm font-weight-bold">First Name</label>
@@ -314,12 +322,14 @@
             </div>
 
             <!-- Modal body -->
-            <div class="modal-body">              
-                <div class="col-md">
-                    <label class="control-label col-sm font-weight-bold d-inline">Current Electricity(kwh):</label>
-                    <input type="text" style="width:150px;" class="d-inline form-control" placeholder="kwh"> 
-                    <button type="button" class="mb-1 btn btn-success"><i class="fas fa-calculator"></i></button>   
-                </div>        
+            <div class="modal-body">
+                <form class="payRentCalculationDetails">
+                    <div class="col-md">               
+                        <label class="control-label col-sm font-weight-bold d-inline">Current Electricity(kwh):</label>
+                        <input type="text" style="width:150px;" class="d-inline form-control" placeholder="kwh"> 
+                        <button type="button" class="mb-1 btn btn-success"><i class="fas fa-calculator"></i></button>   
+                    </div> 
+                </form>       
                     <hr>
                     <div class="details-body">
                     </div>                                                                                 

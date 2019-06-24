@@ -5,69 +5,67 @@
             parent::__construct(); 
             $this->load->database();
         } 
-        public function login($email, $password){
-			$query = $this->db->get_where('users', array('email'=>$email, 'password'=>$password));
+        public function login($username, $password){
+			$query = $this->db->get_where('user', array('username'=>$username, 'password'=>$password));
 			return $query->row_array();
         }
         public function register($data){           
-            return $this->db->insert('users', $data);
+            return $this->db->insert('user', $data);
         }
         public function getListOfTenants(){
-            $query = $this->db->query("SELECT t.id,first_name,last_name,phone_number, r.room_no,CONCAT('₱ ', FORMAT((r.room_value/2), 2)) AS
-             monthly_payment, mps.payment_status, DATE_FORMAT(mps.actual_due_date, '%M %d, %Y') AS actual_due_date,r.room_occupied,r.room_capacity FROM tenants AS t INNER JOIN rooms AS r on r.id = t.room_id
-              INNER JOIN monitor_payment_status AS mps ON t.id = mps.tenant_id");
+            $query = $this->db->query("SELECT t.id, t.first_name, t.last_name, t.phone_number, t.payment_status, t.board_date, r.room_number FROM tenant t JOIN room r on t.room_id = r.id");
             $data =$query->result_array();
             return $data;
         }
 
         public function getInitialValueM($roomno){
             $this->db->select('room_value');
-            $query = $this->db->get_where('rooms',array('room_no' => $roomno));
+            $query = $this->db->get_where('room',array('room_number' => $roomno));
             return $query->row_array();
         }
 
         public function checkOccupationM($roomno){
-            $this->db->select('room_occupied');
-            $query = $this->db->get_where('rooms',array('room_no' => $roomno));
+            $this->db->select('occupied');
+            $query = $this->db->get_where('room',array('room_number' => $roomno));
             return $query->row_array();
         }
         public function getKWHM($roomno){
-            $this->db->select('current_electricity_kwh');
-            $query = $this->db->get_where('rooms',array('room_no' => $roomno));
+            $this->db->select('electricity_kwh');
+            $query = $this->db->get_where('room',array('room_number' => $roomno));
             return $query->row_array();
         }
 
         public function getRoomFloorM($id){
-            $nameInfo = $this->db->get_where('tenants',array('id'=>$id)); 
+            $nameInfo = $this->db->get_where('tenant',array('id'=>$id)); 
             $getRoomId = $nameInfo->row_array();
             $this->db->select('floor');
-            $getRoomInfo = $this->db->get_where('rooms',array('id'=>$getRoomId['room_id'])); 
+            $getRoomInfo = $this->db->get_where('room',array('id'=>$getRoomId['room_id'])); 
             $getFloor = $getRoomInfo->row_array();
            return $getFloor;
         }
         public function getUpdatedRoomFloorM($roomno){
             $this->db->select('floor');
-            $getFloor = $this->db->get_where('rooms',array('room_no' => $roomno));
+            $getFloor = $this->db->get_where('room',array('room_number' => $roomno));
             return $getFloor->row_array();
         }
 
         public function getRoomValueM($id){
-            $nameInfo = $this->db->get_where('tenants',array('id'=>$id)); 
+            $nameInfo = $this->db->get_where('tenant',array('id'=>$id)); 
             $getRoomId = $nameInfo->row_array();
             $this->db->select('room_value');
-            $getRoomInfo = $this->db->get_where('rooms',array('id'=>$getRoomId['room_id'])); 
+            $getRoomInfo = $this->db->get_where('room',array('id'=>$getRoomId['room_id'])); 
             $getRoomValue = $getRoomInfo->row_array();
            return $getRoomValue;
         }
         public function getUpdatedRoomValueM($roomno){
             $this->db->select('room_value');
-            $getRoomValue = $this->db->get_where('rooms',array('room_no' => $roomno));
+            $getRoomValue = $this->db->get_where('room',array('room_number' => $roomno));
             return $getRoomValue->row_array();
         }
                 
         public function getRoomCurrentDueDate($roomId){
             $this->db->select('id');
-            $tenantQuery = $this->db->get_where('tenants',array('room_id' => $roomId));
+            $tenantQuery = $this->db->get_where('tenant',array('room_id' => $roomId));
             $getTenantId = $tenantQuery->row_array();
             $id =  $getTenantId['id'];
             $monitorPaymentStatusQuery = $this->db->query("SELECT MAX(actual_due_date) AS due_date FROM monitor_payment_status WHERE tenant_id = $id");
@@ -78,118 +76,107 @@
 
         //Start Initial Add Tenants
         public function getRoomIdM($roomno){
-            $query = $this->db->get_where('rooms',array('room_no'=>$roomno)); 
-            $result = $query->row_array();
-            $getid = $result['id'];
-            return $getid;
+            $this->db->select('id');
+            $roomid = $this->db->get_where('room',array('room_number' => $roomno));
+            return $roomid->row_array();
         }
-        public function addRoomM($roomInfo,$roomId){
-            $this->db->where('id', $roomId);
-            $this->db->update('rooms', $roomInfo);
-        }
-        public function addOccupancyM($roomno){
-            $query = $this->db->get_where('rooms',array('room_no'=>$roomno)); 
+        public function addOccupancyM($roomno,$kwh){
+            $query = $this->db->get_where('room',array('room_number'=>$roomno)); 
             $result = $query->row_array();
-            $avail = $result['room_occupied'] + 1;
+            $avail = $result['occupied'] + 1;
             $data = array(
-                'room_occupied' => $avail
+                'occupied' => $avail,
+                'electricity_kwh' => $kwh,
              );       
-            $this->db->where('room_no', $roomno);
-            $this->db->update('rooms', $data);
+            $this->db->where('room_number', $roomno);
+            $this->db->update('room', $data);
         }
 
         public function addTenantM($tenantsInfo){
-            return $this->db->insert('tenants', $tenantsInfo);
+            return $this->db->insert('tenant', $tenantsInfo);
         }
 
         public function getTenantIdM($tenantInfo){
-            $query = $this->db->get_where('tenants',$tenantInfo);
+            $query = $this->db->get_where('tenant',$tenantInfo);
             $result = $query->row_array();
             $getid = $result['id'];
             return $getid;
         }
         public function initialPaymentM($roomId){
-            $query = $this->db->get_where('rooms',array('id'=>$roomId)); 
+            $query = $this->db->get_where('room',array('id'=>$roomId)); 
             $result = $query->row_array();
-            $computation = ($result['room_value']/$result['room_capacity'])*2;
+            $computation = ($result['room_value']/$result['capacity'])*2;
             return $computation;
         }
 
-        public function addInitialBillsCalculationM($initialBillsCalculationInfo){
-            return $this->db->insert('bills_calculation', $initialBillsCalculationInfo);
-        }
         public function monthlyPaymentM($roomId){
-            $query = $this->db->get_where('rooms',array('id'=>$roomId)); 
+            $query = $this->db->get_where('room',array('id'=>$roomId)); 
             $result = $query->row_array();
-            $computation = $result['room_value']/$result['room_capacity'];
+            $computation = $result['room_value']/$result['capacity'];
             return $computation;
         }
-        public function addMonthlyBillsCalculationM($monthlyBillsCalculationInfo){
-            return $this->db->insert('bills_calculation', $monthlyBillsCalculationInfo);
+        public function addBillCalculationM($BillCalculationInfo){
+            return $this->db->insert('bill_calculation', $BillCalculationInfo);
         }
 
-        public function getBillCalculationIdM($billsCalculationInfo){
-            $query = $this->db->get_where('bills_calculation',$billsCalculationInfo);
+        public function getBillCalculationIdM($billCalculationInfo){
+            $query = $this->db->get_where('bill_calculation',$billCalculationInfo);
             $result = $query->row_array();
             $getid = $result['id'];
             return $getid;
         }
 
-        public function getTotalAmountM($billsCalculationInfo){
-            $query = $this->db->get_where('bills_calculation',$billsCalculationInfo);
+        public function getTotalAmountM($billCalculationInfo){
+            $query = $this->db->get_where('bill_calculation',$billCalculationInfo);
             $result = $query->row_array();
             $computation = (($result['month_current_kwh']-$result['month_before_kwh'])*15) + $result['monthly_payment'];
             return $computation;
         }
-        public function getWaterBillM($roomId){
-            $this->db->select('water_bill');
-            $getFloor = $this->db->get_where('rooms',array('id' => $roomId));
-            return $getFloor->row_array();
-        }
-
-        public function addInitialMonitorPaymentStatusM($initialMonitorPaymentStatusInfo){
-            return $this->db->insert('monitor_payment_status', $initialMonitorPaymentStatusInfo);
-        }
-        public function addMonthlyMonitorPaymentStatusM($monthlyMonitorPaymentStatusInfo){
-            return $this->db->insert('monitor_payment_status', $monthlyMonitorPaymentStatusInfo);
+        // public function getWaterBillM($roomId){
+        //     $this->db->select('water_bill');
+        //     $getFloor = $this->db->get_where('room',array('id' => $roomId));
+        //     return $getFloor->row_array();
+        // }
+        public function addTransactionHistoryM($transactionHistory){
+            return $this->db->insert('transaction_history', $transactionHistory);
         }
         //End Initial Add Tenants
         //Start Edit Tenant
         //DATE_FORMAT(mps.date_paid, '%d/%m/%Y')
         public function getTenantEditInfoM($id){
-            $query = $this->db->query("SELECT t.id,first_name,last_name,phone_number, r.room_no, CONCAT('₱ ', FORMAT((r.room_value/2), 2)) AS
-             monthly_payment, mps.payment_status, mps.actual_due_date,r.current_electricity_kwh,r.room_capacity FROM tenants AS t INNER JOIN rooms AS r on r.id = t.room_id
+            $query = $this->db->query("SELECT t.id,first_name,last_name,phone_number, r.room_number, CONCAT('₱ ', FORMAT((r.room_value/2), 2)) AS
+             monthly_payment, mps.payment_status, mps.actual_due_date,r.electricity_kwh,r.capacity FROM tenant AS t INNER JOIN room AS r on r.id = t.room_id
               INNER JOIN monitor_payment_status AS mps ON t.id = mps.tenant_id WHERE t.id = $id");
             $data = $query->row_array();
             return $data;
         }
    
         public function getRoomNoOfTenantM($id){
-            $nameInfo = $this->db->get_where('tenants',array('id'=>$id)); 
+            $nameInfo = $this->db->get_where('tenant',array('id'=>$id)); 
             $getRoom = $nameInfo->row_array();
-            $this->db->select('room_no');
-            $getRoomNo = $this->db->get_where('rooms',array('id'=>$getRoom['room_id'])); 
+            $this->db->select('room_number');
+            $getRoomNo = $this->db->get_where('room',array('id'=>$getRoom['room_id'])); 
             $result = $getRoomNo->row_array();
             return $result;
         }
 
         public function minusOccpancyM($roomNo){
-            $getRoomRec = $this->db->get_where('rooms',array('room_no'=>$roomNo)); 
+            $getRoomRec = $this->db->get_where('room',array('room_number'=>$roomNo)); 
             $result = $getRoomRec->row_array();
-            $occupied = $result['room_occupied'] - 1;
+            $occupied = $result['occupied'] - 1;
             $data = array(
-                'room_occupied' => $occupied
+                'occupied' => $occupied
                 );       
-            $this->db->where('room_no', $roomNo);
-            $this->db->update('rooms', $data);   
+            $this->db->where('room_number', $roomNo);
+            $this->db->update('room', $data);   
         }
         public function editTenantsInfoM($editTenantInfo,$id){
             $this->db->where('id', $id);
-            $this->db->update('tenants', $editTenantInfo);   
+            $this->db->update('tenant', $editTenantInfo);   
         }
-        public function editBillsCalculationInfoM($editBillsCalculationInfo,$id){
+        public function editBillCalculationInfoM($editBillCalculationInfo,$id){
             $this->db->where('id', $id);        
-            $this->db->update('bills_calculation', $editBillsCalculationInfo);   
+            $this->db->update('bill_calculation', $editBillCalculationInfo);   
         }
         public function editMonitorPaymentStatusInfoM($editMonitorPaymentStatusInfo,$id){
             $this->db->where('id', $id);
@@ -197,24 +184,24 @@
         }
         //End Edit Tenant
         public function getRoomLists(){
-            $query = $this->db->get('rooms');
+            $query = $this->db->get('room');
             return $query->result_array();
         }
 
         public function getRoomListRecordByRoom($roomNo){
-            $query = $this->db->query("SELECT DISTINCT t.id,CONCAT( first_name,' ',last_name) AS full_name,phone_number,r.room_occupied,r.room_capacity FROM tenants AS t INNER JOIN rooms AS r on r.id = t.room_id
-            INNER JOIN monitor_payment_status AS mps ON t.id = mps.tenant_id WHERE r.room_no ='$roomNo'");
+            $query = $this->db->query("SELECT DISTINCT t.id,CONCAT( first_name,' ',last_name) AS full_name,phone_number,r.occupied,r.capacity FROM tenant AS t INNER JOIN room AS r on r.id = t.room_id
+            INNER JOIN monitor_payment_status AS mps ON t.id = mps.tenant_id WHERE r.room_number ='$roomNo'");
             return $query->result_array();
         }
         public function nearDeadline(){
             $this->db->query("SELECT * FROM LeVigneau.Vente WHERE date > DATE_ADD(now(), INTERVAL 10 DAY)");
         }
         public function paymentTransactionTenantsNamesM($roomid){
-            $query = $this->db->query("SELECT CONCAT(t.first_name,' ',t.last_name) AS full_name FROM tenants t INNER JOIN monitor_payment_status mps ON t.id = mps.tenant_id INNER JOIN bills_calculation bc ON mps.bills_calculation_id = bc.id WHERE t.room_id = '$roomid' AND mps.payment_status = 0");
+            $query = $this->db->query("SELECT CONCAT(t.first_name,' ',t.last_name) AS full_name FROM tenant t INNER JOIN monitor_payment_status mps ON t.id = mps.tenant_id INNER JOIN bill_calculation bc ON mps.bill_calculation_id = bc.id WHERE t.room_id = '$roomid' AND mps.payment_status = 0");
             return $query->result_array();
         }
         public function paymentTransactionTenantsDetailsM($roomid){
-            $query = $this->db->query("SELECT DISTINCT mps.actual_due_date,mps.total_amount_paid,monthly_payment ,mps.payment_status, bc.month_before_kwh, bc.month_current_kwh,bc.total_payment_kwh, r.water_bill FROM tenants t INNER JOIN monitor_payment_status mps ON t.id = mps.tenant_id INNER JOIN bills_calculation bc ON mps.bills_calculation_id = bc.id INNER JOIN rooms r ON t.room_id = r.id WHERE t.room_id = '$roomid' AND mps.payment_status = 0");
+            $query = $this->db->query("SELECT DISTINCT mps.actual_due_date,mps.total_amount_paid,monthly_payment ,mps.payment_status, bc.month_before_kwh, bc.month_current_kwh,bc.total_payment_kwh, r.water_bill FROM tenant t INNER JOIN monitor_payment_status mps ON t.id = mps.tenant_id INNER JOIN bill_calculation bc ON mps.bill_calculation_id = bc.id INNER JOIN room r ON t.room_id = r.id WHERE t.room_id = '$roomid' AND mps.payment_status = 0");
             return $query->row_array();
         }
         // public function deleteRecord($id){           

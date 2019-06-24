@@ -15,9 +15,8 @@
                     <th class="column3">Last name</th>
                     <th class="column3">Phone Number</th>
                     <th class="column5">Room #</th>
-                   
-                    <th class="column5">Payment Status</th>
-                    <th class="column5">Due Date</th>
+                    <th class="column5">Payment_status</th>
+                    <th class="column5">Board Date</th>
                     <th class="column6-head">Action</th>
                 </tr>
             </thead>
@@ -31,10 +30,9 @@
                 <td class="column2"><?php echo $listitem['first_name'];?></td>
                 <td class="column3"><?php echo $listitem['last_name'];?></td>
                 <td class="column3"><?php echo $listitem['phone_number'];?></td>
-                <td class="column5"><?php echo $listitem['room_no'];?></td>
-               
+                <td class="column5"><?php echo $listitem['room_number'];?></td>
                 <td class="column5 text-<?php echo $color;?>"><?php echo $paymentStatus;?></td>
-                <td class="column5"><?php echo $listitem['actual_due_date']?></td>
+                <td class="column5"><?php echo $listitem['board_date']?></td>
                 <td class="column6">
                     <button type="button" class="btn btn-secondary " onclick="view()"><i class="fas fa-eye"></i></button>
                     <button type="button" class="btn btn-danger" onclick="deleteRec('<?php echo $listitem['id'];?>')"  data-toggle="modal" data-target="#delete"><i class="fas fa-trash"></i></button>

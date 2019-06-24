@@ -4,22 +4,22 @@ $(document).ready(function() {
     var twoDigitMonth = ((fullDate.getMonth().length+1) === 1)? (fullDate.getMonth()+1) : '0' + (fullDate.getMonth()+1);
     var dayFormat = (fullDate.getDate()/10) >= 1 ? fullDate.getDate():"0"+fullDate.getDate();
     var currentDate = twoDigitMonth + "/" +  dayFormat+ "/" + fullDate.getFullYear();
-    $('#add_due_date').attr('value', currentDate);
+    $('#add_board_date').attr('value', currentDate);
 
-    $("#add_room_no").change(function(){
-        var getRoomNo = $('#add_room_no').val(); 
+    $("#add_room_number").change(function(){
+        var getRoomNo = $('#add_room_number').val(); 
         $.ajax({
             url : "http://localhost/bedSpacerRent/index.php/main/getInitialValueC",
             type: "POST",
             data: {getRoomNo:getRoomNo},
                 success: function(data)
                 {   var res = JSON.parse(data);
-                    $("input[name='add_monthly_payment']").val("₱ "+ number_format( res.room_value, 2, '.', ',' ));
-                    $("input[name='add_month_current_kwh']").val(res.current_electricity_kwh);
+                    $("input[name='add_initial_payment']").val("₱ "+ number_format( res.room_value, 2, '.', ',' ));
+                    $("input[name='add_electricity_kwh']").val(res.electricity_kwh);
                     if(res.room_occupied >=1){
-                        $("input[name='add_month_current_kwh']").attr("readonly",true);
+                        $("input[name='add_electricity_kwh']").attr("readonly",true);
                     }else{
-                        $("input[name='add_month_current_kwh']").attr("readonly",false);
+                        $("input[name='add_electricity_kwh']").attr("readonly",false);
                     }
                 },
         });
@@ -116,8 +116,8 @@ $(document).ready(function() {
 
 
 // function calculateInitialValue(){
-//     // var data = $( ".add_room_no option:selected" ).val();
-//     var option = $('.add_room_no').find('option:selected');
+//     // var data = $( ".add_room_number option:selected" ).val();
+//     var option = $('.add_room_number').find('option:selected');
 //      var data=  option.text();
 //     console.log(data);
 // }
@@ -137,6 +137,7 @@ $(document).ready(function() {
 // }
 
 function addTenant(){  
+    console.log($(".add-modal").serializeArray());
     $.ajax({
         url : "http://localhost/bedSpacerRent/index.php/main/addTenantC",
         type: "POST",
@@ -198,7 +199,7 @@ function updateTenant(){
             },
     });
 }
-function paymentTransaction(roomNo){
+function calculateTransaction(roomNo){
 $('#viewCalculation .modal-title').append("<span id='roomNumber'>"+roomNo+"</span>");
 $("#tenantsInfo").modal('toggle');
 
@@ -261,7 +262,7 @@ function viewRoomDetails(room_no,room_space){
                     $("#tenantsInfo").modal('toggle');
                     $('#roomNumber').remove();
                     $("#viewTenantsPaymentCalculationByRoom").show();
-                    $('#viewTenantsPaymentCalculationByRoom').attr('onclick',`paymentTransaction('${room_no}')`);
+                    $('#viewTenantsPaymentCalculationByRoom').attr('onclick',`calculateTransaction('${room_no}')`);
                     if(room_space == 0){
                         $("#btn-modal-add").hide();
                     }else{$("#btn-modal-add").show();}                   

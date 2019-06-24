@@ -28,10 +28,10 @@ class User extends CI_Controller {
  
 		$output = array('error' => false);
  
-		$email = $_POST['email'];
+		$username = $_POST['username'];
 		$password = $_POST['password'];
  
-		$data = $this->user_model->login($email, $password);
+		$data = $this->user_model->login($username, $password);
  
 		if($data){
 			$this->session->set_userdata('user', $data);
@@ -100,7 +100,7 @@ class User extends CI_Controller {
 
 	public function registration(){
 		$data = array(
-			'fname' => $this->input->post('firstname'),
+			'fname' => $this->input->post('name'),
 			'email' => $this->input->post('email'),
 			'password' => $this->input->post('password'),
 		);
