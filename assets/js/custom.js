@@ -4,17 +4,28 @@ $(document).ready(function() {
     var twoDigitMonth = ((fullDate.getMonth().length+1) === 1)? (fullDate.getMonth()+1) : '0' + (fullDate.getMonth()+1);
     var dayFormat = (fullDate.getDate()/10) >= 1 ? fullDate.getDate():"0"+fullDate.getDate();
     var currentDate = twoDigitMonth + "/" +  dayFormat+ "/" + fullDate.getFullYear();
-    $('#add_due_date').attr('value', currentDate);
+    $('#add_board_date').attr('value', currentDate);
 
-    $("#add_room_no").change(function(){
-        var getRoomNo = $('#add_room_no').val(); 
+    $("#add_room_number").change(function(){
+        var getRoomNo = $('#add_room_number').val(); 
+        $('#roomMate pre').detach();
         $.ajax({
-            url : "http://localhost/Jong/index.php/main/getInitialValueC",
+            url : "http://localhost/bedspacer/index.php/main/getInitialValueC",
             type: "POST",
             data: {getRoomNo:getRoomNo},
                 success: function(data)
-                { 
-                    $("input[name='add_monthly_payment']").val("₱ "+ number_format( data, 2, '.', ',' ));
+                {   $('#roomMate pre').detach();
+                    var res = JSON.parse(data);
+                    $("input[name='add_initial_payment']").val("₱ "+ number_format( res.room_value, 2, '.', ',' ));
+                    $("input[name='add_electricity_kwh']").val(res.electricity_kwh);
+                    if(res.occupied > 0){
+                        $("input[name='add_electricity_kwh']").attr("readonly",true);
+                    }else{
+                        $("input[name='add_electricity_kwh']").attr("readonly",false);
+                    }
+                    var details =  "<pre>Room mate              : <b>"+res.tenants+"</b><br></pre>";
+                    $('#roomMate').append(details);
+                
                 },
         });
     });
@@ -24,26 +35,26 @@ $(document).ready(function() {
         var getTenantId = $('#edit_id').val(); 
         $('#notice-section').remove();
         $.ajax({
-            url : "http://localhost/Jong/index.php/main/getRoomFloorC",
+            url : "http://localhost/bedspacer/index.php/main/getRoomFloorC",
             type: "POST",
             data: {getRoomNo:getRoomNo,getTenantId:getTenantId},
                 success: function(data)
                 {   var floor = JSON.parse(data);
-                    if(floor.getRoomFloor == floor.getUpdatedRoomFloor){
-                        $.ajax({
-                            url : "http://localhost/Jong/index.php/main/getValueC",
-                            type: "POST",
-                            data: {getRoomNo:getRoomNo},
-                                success: function(data)
-                                { 
-                                    $("input[name='edit_monthly_payment']").val("₱ "+ number_format( data, 2, '.', ',' ));
-                                    $('#notice label').detach();
-                                },
-                        });
-                    }else{
+                    if(floor.getRoomFloor != floor.getUpdatedRoomFloor){
+                    //     $.ajax({
+                    //         url : "http://localhost/bedspacer/index.php/main/getValueC",
+                    //         type: "POST",
+                    //         data: {getRoomNo:getRoomNo},
+                    //             success: function(data)
+                    //             {   console.log(data);
+                    //                 $("input[name='edit_monthly_payment']").val("₱ "+ number_format( data, 2, '.', ',' ));
+                    //                 $('#notice label').detach();
+                    //             },
+                    //     });
+                    // }else{
                         
                         $.ajax({
-                            url : "http://localhost/Jong/index.php/main/getValueRoomDiscrepancyC",
+                            url : "http://localhost/bedspacer/index.php/main/getValueRoomDiscrepancyC",
                             type: "POST",
                             data: {getRoomNo:getRoomNo,getTenantId:getTenantId},
                                 success: function(data)
@@ -57,6 +68,12 @@ $(document).ready(function() {
                                     "Lacking payment: <span class='text-danger'>₱"+ calculated.calculatedPayment +"</span> for room change <br>" +
                                     "</div></div>";
                                     $("input[name='edit_monthly_payment']").val("₱"+ number_format( calculated.amount, 2, '.', ',' ));
+                                    $("input[name='edit_month_current_kwh']").val(calculated.getKWH);
+                                    if(calculated.checkOccupation >=1){
+                                        $("input[name='edit_month_current_kwh']").attr("readonly",true);
+                                    }else{
+                                        $("input[name='edit_month_current_kwh']").attr("readonly",false);
+                                    }
                                     if(calculated.calculatedPayment > 0){
                                         $('#notice').append(outputCredit);
                                     }
@@ -104,8 +121,8 @@ $(document).ready(function() {
 
 
 // function calculateInitialValue(){
-//     // var data = $( ".add_room_no option:selected" ).val();
-//     var option = $('.add_room_no').find('option:selected');
+//     // var data = $( ".add_room_number option:selected" ).val();
+//     var option = $('.add_room_number').find('option:selected');
 //      var data=  option.text();
 //     console.log(data);
 // }
@@ -113,7 +130,7 @@ $(document).ready(function() {
 //         $('.tenantDelete').attr('onclick',`deleteRec('${id}')`);
 //         $('.tenantDelete').on('click',function(){
 //             $.ajax({
-//                 url : "http://localhost/Jong/index.php/main/delete/"+ id,
+//                 url : "http://localhost/bedspacer/index.php/main/delete/"+ id,
 //                 type: "POST",
 //                 data: id, 
 //                 success: function(data)
@@ -125,8 +142,9 @@ $(document).ready(function() {
 // }
 
 function addTenant(){  
+    console.log($(".add-modal").serializeArray());
     $.ajax({
-        url : "http://localhost/Jong/index.php/main/addTenantC",
+        url : "http://localhost/bedspacer/index.php/main/addTenantC",
         type: "POST",
         data: $(".add-modal").serializeArray(),
             success: function(data)
@@ -140,7 +158,7 @@ function addByRoom(roomNo){
 //   var arr = $(".addTenantByRoom").serializeArray()
     
     $.ajax({
-        url : "http://localhost/Jong/index.php/main/addTenantByRoomC/" + roomNo,
+        url : "http://localhost/bedspacer/index.php/main/addTenantByRoomC/" + roomNo,
         type: "POST",
         data: $(".addTenantByRoom").serializeArray(),
             success: function(data)
@@ -153,7 +171,7 @@ function addByRoom(roomNo){
 function editTenant(id){
     $('#notice-section').remove();
     $.ajax({
-        url : "http://localhost/Jong/index.php/main/getTenantEditInfoC/" + id,
+        url : "http://localhost/bedspacer/index.php/main/getTenantEditInfoC/" + id,
         type: "GET",
         datatype: "JSON",
             success: function(data)
@@ -167,6 +185,7 @@ function editTenant(id){
                 $('[name="edit_room_no"]').val(res.room_no);
                 $('[name="edit_monthly_payment"]').val(res.monthly_payment);
                 $('[name="edit_payment_status"]').val(paymentStatus);
+                $('[name="edit_month_current_kwh"]').val(res.current_electricity_kwh);
                 $('[name="edit_due_date"]').val(res.actual_due_date);
                 $('#edit').modal('toggle');
             }
@@ -176,7 +195,7 @@ function editTenant(id){
 function updateTenant(){         
     console.log($(".update-modal").serializeArray());
     $.ajax({
-        url : "http://localhost/Jong/index.php/main/updateTenantC",
+        url : "http://localhost/bedspacer/index.php/main/updateTenantC",
         type: "POST",
         data: $(".update-modal").serializeArray(),
             success: function(data)
@@ -185,18 +204,40 @@ function updateTenant(){
             },
     });
 }
-function paymentTransaction(roomNo){
+function calculateTransaction(roomNo){
 $('#viewCalculation .modal-title').append("<span id='roomNumber'>"+roomNo+"</span>");
 $("#tenantsInfo").modal('toggle');
-$('#viewCalculation').modal('show');
+
+    $.ajax({
+        url : "http://localhost/bedspacer/index.php/main/paymentTransactionC/" + roomNo,
+        type: "GET",
+        datatype: "JSON",
+            success: function(data){
+                var res = JSON.parse(data);
+                var details = 
+                  "<div class='col-md pl-5' id='paymentDetails'>"
+                    + "<pre>Tenant/s                 : <b>"+res.tenants_full_name+"</b><br></pre>"
+                    + "<pre>Due Date                 : <b>"+res.actual_due_date+" </b><br></pre>"
+                    + "<pre>Electricity Last Month   : <b>"+res.month_before_kwh+" kwh</b><br></pre>"
+                    + "<pre>Electricity This Month   : <b>"+res.month_current_kwh+" kwh</b><br></pre>"
+                    + "<pre>Total Electricity Charge : <b>₱ "+res.total_payment_kwh+"</b><br></pre>"
+                    + "<pre>Monthly Rent             : <b>₱ "+res.monthly_payment+"</b><br></pre>"
+                    + "<pre>Water Bill               : <b>₱ "+res.water_bill+"</b><br></pre>"
+                    + "<pre>Total Payment Per Person : <b>₱ "+res.total_amount_paid+" / Head</b><br></pre>"
+                    + "<pre><b class='text-danger'>General Total Payment    : ₱ "+res.total_payment_by_room+"</b><br></pre>"
+                + "</div>";
+                $('#viewCalculation .details-body').append(details);
+                $('#viewCalculation').modal('show');
+            }
+    });
 }
 
 function viewRoomDetails(room_no,room_space){
-    
+    $('#paymentDetails').remove();
     $('#filteredTend tr').remove();
     $('#addTenantByRoom .modal-title').remove();
     $.ajax({
-        url : "http://localhost/Jong/index.php/main/tenantsFilterByRoomC/" + room_no,
+        url : "http://localhost/bedspacer/index.php/main/tenantsFilterByRoomC/" + room_no,
         type: "GET",
         datatype: "JSON",
             success: function(data)
@@ -219,15 +260,14 @@ function viewRoomDetails(room_no,room_space){
                     $.each(res.tenantsByRoom, function(i, tenants) {
                             var  row = 
                             "<tr id='tenantsByRoom'><td class='column1'>"+tenants['id'] +"</th>"
-                            + "<td class='column2'>"+tenants['first_name']+"</td>"
-                            + "<td class='column3'>"+tenants['last_name']+"</td>"
+                            + "<td class='column2'>"+tenants['full_name']+"</td>"
                             + "<td class='column5'>"+tenants['phone_number']+"</td>";
                         $('#filteredTend').append(row);
                     }); 
                     $("#tenantsInfo").modal('toggle');
                     $('#roomNumber').remove();
                     $("#viewTenantsPaymentCalculationByRoom").show();
-                    $('#viewTenantsPaymentCalculationByRoom').attr('onclick',`paymentTransaction('${room_no}')`);
+                    $('#viewTenantsPaymentCalculationByRoom').attr('onclick',`calculateTransaction('${room_no}')`);
                     if(room_space == 0){
                         $("#btn-modal-add").hide();
                     }else{$("#btn-modal-add").show();}                   
@@ -244,7 +284,7 @@ function addRoomNoInModal(rNo){
     $('#rn').val(rNo);
     $('#addTenantByRoom .modal-header').prepend("<h4 class='modal-title'>"+rNo+"</h4>");
     $.ajax({
-        url : "http://localhost/Jong/index.php/main/getInitialAndDueDateC/" + rNo,
+        url : "http://localhost/bedspacer/index.php/main/getInitialAndDueDateC/" + rNo,
         type: "GET",
         datatype: "JSON",
             success: function(data)
@@ -252,6 +292,7 @@ function addRoomNoInModal(rNo){
                 var res = JSON.parse(data); 
                 $('[name="add_byroom_monthly_payment"]').val("₱ "+ res.initial_payment);
                 $('[name="add_byroom_due_date"]').val(res.due_date);
+               
             }
         });
 }

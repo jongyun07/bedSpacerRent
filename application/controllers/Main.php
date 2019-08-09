@@ -15,25 +15,24 @@
       echo json_encode($data);
     }
     public function getInitialValueC(){
-      $data = $this->user_model->getInitialValueM($this->input->post('getRoomNo'));
-
-      $calculation = $data['room_value']+100;
-      echo  $calculation;
+      $data = [];
+      $roominfo = $this->user_model->getRoomInfoM($this->input->post('getRoomNo'));
+      $tenantinfo = $this->user_model->getRoomTenantsInfoM($this->input->post('getRoomNo'));
+      $data = array_merge($data,$roominfo,$tenantinfo);
+      echo json_encode($data);
     }
 
-    public function getValueC(){
-      $data = $this->user_model->getValueM($this->input->post('getRoomNo'));
-      $calculation = $data['room_value']/2;
-      echo  $calculation;
-    }
     public function getValueRoomDiscrepancyC(){
-      // $data = $this->user_model->getValueM($this->input->post('getRoomNo'));
       $getRoomValue= $this->user_model->getRoomValueM($this->input->post('getTenantId'));
       $getUpdatedRoomValue= $this->user_model->getUpdatedRoomValueM($this->input->post('getRoomNo'));
       $data['amount'] = $getUpdatedRoomValue['room_value']/2;
       $data['getRoomValue'] = $getRoomValue['room_value'];
       $data['getUpdatedRoomValue'] = $getUpdatedRoomValue['room_value'];
       $data['calculatedPayment'] = $getUpdatedRoomValue['room_value'] - $getRoomValue['room_value'];
+      $getKWH = $this->user_model->getKWHM($this->input->post('getRoomNo'));
+      $data['getKWH'] = $getKWH['electricity_kwh'];
+      $checkOccupation = $this->user_model->checkOccupationM($this->input->post('getRoomNo'));
+      $data['checkOccupation'] = $checkOccupation['room_occupied'];
       echo json_encode($data);
     }
     
@@ -54,80 +53,57 @@
     }
   
     public function addTenantC() { 
-        $this->user_model->addOccupancyM($this->input->post('add_room_no'));  
-        $getRoomId = $this->user_model->getRoomIdM($this->input->post('add_room_no'));
-        $data['room'] = array(
-          'current_electricity_kwh' => $this->input->post('add_month_current_kwh'), 
-        );
-        $this->user_model->addRoomM($data['room'],$getRoomId);  
-
-        $data['tenants'] = array(
-            'first_name' => $this->input->post('add_first_name'),
-            'last_name' => $this->input->post('add_last_name'),       
-            'room_id' => $getRoomId,
-            'phone_number' => $this->input->post('add_phone_number'),
-        );
-        $this->user_model->addTenantM($data['tenants']);  
-
-        $tenantId = $this->user_model->getTenantIdM($data['tenants']);
-        $data['initial_bills_calculation'] = array(
-            'month_before_kwh' => $this->input->post('add_month_current_kwh'),
-            'month_current_kwh' => $this->input->post('add_month_current_kwh'),
-            'total_payment_kwh' => 0,
-            'water_bill' => 100,
-            'monthly_payment' => $this->user_model->initialPaymentM($getRoomId),
-            'tenant_id' => $tenantId,
-        );
-        $this->user_model->addInitialBillsCalculationM($data['initial_bills_calculation']);  
-
-        $data['monthly_bills_calculation'] = array(
-          'month_before_kwh' => $this->input->post('add_month_current_kwh'),
-          'month_current_kwh' => $this->input->post('add_month_current_kwh'),
-          'total_payment_kwh' => 0,
-          'water_bill' => 100,
-          'monthly_payment' => $this->user_model->monthlyPaymentM($getRoomId),
-          'tenant_id' => $tenantId,
-        );
-        $this->user_model->addMonthlyBillsCalculationM($data['monthly_bills_calculation']);
-
-        $origDate = strtotime($this->input->post('add_due_date'));
+        $origDate = strtotime($this->input->post('add_board_date'));
+        $currentDate = date("Y-m-d", $origDate);
         $dueDate = date("Y-m-d", $origDate);
         $day = date('d', strtotime($dueDate));
         $month = date('F', strtotime($dueDate));
         $year = date('Y', strtotime($dueDate));
         $nextMonthDate = date("Y-m-d", strtotime("+1 month", $origDate));
         $nextMonth = date('F', strtotime($nextMonthDate));
-        $data['intial_monitor_payment_status'] = array(
-            'tenant_id' => $tenantId,
-            'bills_calculation_id' => $this->user_model->getBillCalculationIdM($data['initial_bills_calculation']),
-            'date_paid' => $dueDate,
-            'actual_due_date' => $dueDate,
-            'actual_due_day_monthly' => $day,
-            'total_amount_paid' => $this->user_model->getTotalAmountM($data['initial_bills_calculation']),
-            'payment_status' => 1,
-            'month' => $month,
-            'year' => $year,
-        );
-        $this->user_model->addInitialMonitorPaymentStatusM($data['intial_monitor_payment_status']);  
 
-        $data['monthly_monitor_payment_status'] = array(
+        $this->user_model->addOccupancyM($this->input->post('add_room_number'),$this->input->post('add_electricity_kwh'));  
+        $getRoomId = $this->user_model->getRoomIdM($this->input->post('add_room_number'));
+
+        $data['tenant'] = array(
+            'room_id' => $getRoomId['id'],  
+            'first_name' => $this->input->post('add_first_name'),
+            'last_name' => $this->input->post('add_last_name'),       
+            'phone_number' => $this->input->post('add_phone_number'),
+            'board_date' => $currentDate,
+            'payment_status' => 1,
+            'is_active' => 1,
+        );
+        $this->user_model->addTenantM($data['tenant']);  
+        $tenantId = $this->user_model->getTenantIdM($data['tenant']);
+        $data['bill_calculation'] = array(
           'tenant_id' => $tenantId,
-          'bills_calculation_id' => $this->user_model->getBillCalculationIdM($data['monthly_bills_calculation']),
-          'date_paid' => "0000-00-00",
-          'actual_due_date' => $nextMonthDate,
-          'actual_due_day_monthly' => $day,
-          'total_amount_paid' => $this->user_model->getTotalAmountM($data['monthly_bills_calculation']),
-          'payment_status' => 0,
-          'month' => $nextMonth,
-          'year' => $year,
+          'electricity_kwh_before' => $this->input->post('add_electricity_kwh'),
+          'electricity_kwh_current' => $this->input->post('add_electricity_kwh'), 
+          'water_bill' => 100,
+          'discount' => 0,
+          'parking_fee' => $this->input->post('add_parking_fee') == null ? 0 : 1,
+          'month' => $month,
+        );
+        $this->user_model->addBillCalculationM($data['bill_calculation']); 
+
+        $billCalculationId = $this->user_model->getBillCalculationIdM($data['bill_calculation']);
+        $data['transaction_history'] = array(
+          'tenant_id' => $tenantId,
+          'bill_calculation_id' => $billCalculationId,
+          'date_paid' => $currentDate,
+          'due_date' => $currentDate,
+          'total_amount' => $this->user_model->getTotalAmountM($data['initial_bills_calculation']),
+          'type' => "Initial Payment",
       );
-      $this->user_model->addMonthlyMonitorPaymentStatusM($data['monthly_monitor_payment_status']);     
+      $this->user_model->addTransactionHistoryM($data['transaction_history']);     
     } 
+
     public function addTenantByRoomC($roomNo){
       $this->user_model->addOccupancyM($roomNo);  
         $getRoomId = $this->user_model->getRoomIdM($roomNo);
         $data['room'] = array(
-          'current_electricity_kwh' => $this->input->post('add_byroom_month_current_kwh'), 
+          'electricity_kwh' => $this->input->post('add_byroom_month_current_kwh'), 
         );
         $this->user_model->addRoomM($data['room'],$getRoomId);  
         $data['tenants'] = array(
@@ -139,21 +115,19 @@
       $this->user_model->addTenantM($data['tenants']);  
 
       $tenantId = $this->user_model->getTenantIdM($data['tenants']);
-      $data['initial_bills_calculation'] = array(
+      $data['initial_bill_calculation'] = array(
           'month_before_kwh' => $this->input->post('add_byroom_month_current_kwh'),
           'month_current_kwh' => $this->input->post('add_byroom_month_current_kwh'),
           'total_payment_kwh' => 0,
-          'water_bill' => 100,
           'monthly_payment' => $this->user_model->initialPaymentM($getRoomId),
           'tenant_id' => $tenantId,
       );
-      $this->user_model->addInitialBillsCalculationM($data['initial_bills_calculation']);  
+      $this->user_model->addInitialBillCalculationM($data['initial_bill_calculation']);  
 
-      $data['monthly_bills_calculation'] = array(
+      $data['monthly_bill_calculation'] = array(
         'month_before_kwh' => $this->input->post('add_byroom_month_current_kwh'),
         'month_current_kwh' => $this->input->post('add_byroom_month_current_kwh'),
         'total_payment_kwh' => 0,
-        'water_bill' => 100,
         'monthly_payment' => $this->user_model->monthlyPaymentM($getRoomId),
         'tenant_id' => $tenantId,
       );
@@ -232,5 +206,19 @@
       );
       $this->user_model->editMonitorPaymentStatusInfoM($data['monitor_payment_status'],$editId);
     } 
+    public function paymentTransactionC($roomNo){
+      $getRoomId = $this->user_model->getRoomIdM($roomNo);
+      $tenantsNames = $this->user_model->paymentTransactionTenantsNamesM($getRoomId);
+      $tenantsDetails = $this->user_model->paymentTransactionTenantsDetailsM($getRoomId);
+      $names = array();
+      $totalPaymentByRoom = count($tenantsNames)*$tenantsDetails['total_amount_paid'];
+      foreach ($tenantsNames as $data) {
+        array_push($names, $data['full_name']);
+      }
+      $tenants = implode( "<br>                           " ,$names);
+      $tenantsDetails = array_merge($tenantsDetails,array('tenants_full_name'=>$tenants),array('total_payment_by_room'=>$totalPaymentByRoom));
+
+      echo json_encode($tenantsDetails);
+    }
   } 
 ?>

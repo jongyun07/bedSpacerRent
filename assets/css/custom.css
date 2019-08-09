@@ -1,12 +1,26 @@
 
   @keyframes blink {
     from { }
-    to { opacity:.5; 
-    /* background-color:maroon; */
+    to { 
+      opacity:.5;
+    /* background-color:#D3514D; */
     }
   }
  
   .blink_me {
      /* color: green; */
      animation: blink 1s steps(10) infinite alternate;   
+  }
+  
+  @keyframes blinkduedate {
+    from { }
+    to { 
+      /* opacity:.5;  */
+    background-color:#D3514D;
+    }
+  }
+ 
+  .blink_due_date {
+     /* color: green; */
+     animation: blinkduedate 1s steps(10) infinite alternate;   
   }
