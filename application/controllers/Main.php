@@ -17,8 +17,8 @@
     public function getInitialValueC(){
       $data = [];
       $roominfo = $this->user_model->getRoomInfoM($this->input->post('getRoomNo'));
-      $tenantinfo = $this->user_model->getRoomTenantsInfoM($this->input->post('getRoomNo'));
-      $data = array_merge($data,$roominfo,$tenantinfo);
+      $tenant = $this->user_model->getRoomTenantsInfoM($this->input->post('getRoomNo'));
+      $data = $tenant == null? array_merge($data,$roominfo):array_merge($data,$roominfo,$tenant);
       echo json_encode($data);
     }
 

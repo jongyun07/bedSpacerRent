@@ -24,8 +24,9 @@ $(document).ready(function() {
                         $("input[name='add_electricity_kwh']").attr("readonly",false);
                     }
                     var details =  "<pre>Room mate              : <b>"+res.tenants+"</b><br></pre>";
-                    $('#roomMate').append(details);
-                
+                    if(res.tenants != undefined){
+                        $('#roomMate').append(details);
+                    }
                 },
         });
     });
