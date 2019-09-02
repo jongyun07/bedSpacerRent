@@ -8,19 +8,24 @@ $(document).ready(function() {
 
     $("#add_room_number").change(function(){
         var getRoomNo = $('#add_room_number').val(); 
+        $('#roomMate pre').detach();
         $.ajax({
             url : "http://localhost/bedSpacerRent/index.php/main/getInitialValueC",
             type: "POST",
             data: {getRoomNo:getRoomNo},
                 success: function(data)
-                {   var res = JSON.parse(data);
+                {   $('#roomMate pre').detach();
+                    var res = JSON.parse(data);
                     $("input[name='add_initial_payment']").val("₱ "+ number_format( res.room_value, 2, '.', ',' ));
                     $("input[name='add_electricity_kwh']").val(res.electricity_kwh);
-                    if(res.room_occupied >=1){
+                    if(res.occupied > 0){
                         $("input[name='add_electricity_kwh']").attr("readonly",true);
                     }else{
                         $("input[name='add_electricity_kwh']").attr("readonly",false);
                     }
+                    var details =  "<pre>Room mate              : <b>"+res.tenants+"</b><br></pre>";
+                    $('#roomMate').append(details);
+                
                 },
         });
     });
@@ -287,6 +292,7 @@ function addRoomNoInModal(rNo){
                 var res = JSON.parse(data); 
                 $('[name="add_byroom_monthly_payment"]').val("₱ "+ res.initial_payment);
                 $('[name="add_byroom_due_date"]').val(res.due_date);
+               
             }
         });
 }
