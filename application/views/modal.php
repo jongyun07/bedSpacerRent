@@ -40,10 +40,10 @@
                             <select name="edit_room_no" class="form-control" id="edit_room_no" data-live-search="true" style="width:200px;">
                                 <option disabled selected  style="color:#999999;">Room #</option>                                            
                                 <?php foreach ($roomLists as $roomlist ){
-                                    $disable = $roomlist['room_occupied'] < $roomlist['room_capacity'] ? "" : "disabled";
-                                    $color = $roomlist['room_occupied'] < $roomlist['room_capacity'] ? "dark" : "danger";
+                                    $disable = $roomlist['occupied'] < $roomlist['capacity'] ? "" : "disabled";
+                                    $color = $roomlist['occupied'] < $roomlist['capacity'] ? "dark" : "danger";
                                     ?>
-                                    <option value="<?php echo $roomlist['room_no'];?>" class="text-<?php echo $color;?>" <?php echo $disable;?>> <?php echo $roomlist['room_no'];?> </option>
+                                    <option value="<?php echo $roomlist['room_number'];?>" class="text-<?php echo $color;?>" <?php echo $disable;?>> <?php echo $roomlist['room_number'];?> </option>
                                 <?php }?>
                             </select>
                             </div>
@@ -160,9 +160,13 @@
                             </div>
                         </div>
                         
-                        <div class="form-check">
-                            <input type="checkbox" class="form-check-input" id="parkingfee" name="add_parking_fee" value="1">
-                            <label class="form-check-label" for="parkingfee">With Parking</label></label>
+                        <div class="form-group" id="addDateType" style="margin-top: 38px;margin-left: 19px;">
+                            <div class="form-check" style="width:200px;">
+                                <input type="checkbox" class="form-check-input" id="parkingfee" name="add_parking_fee" value="1">
+                                <label class="form-check-label" for="parkingfee">With Parking</label></label>
+                            </div>  
+                        </div>
+                        <div class='col-md pl-5' id='roomMate'>
                         </div>
                     </div>                                                            
                 </form>                  
@@ -346,5 +350,6 @@
     </div>
 </div>
 <!-- end calculation modal -->
+<div class="loader"></div>
         
     

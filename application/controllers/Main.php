@@ -15,9 +15,10 @@
       echo json_encode($data);
     }
     public function getInitialValueC(){
-      $checkOccupation = $this->user_model->checkOccupationM($this->input->post('getRoomNo'));
-      $value = $this->user_model->getInitialValueM($this->input->post('getRoomNo'));
-      $data = array_merge($value,$checkOccupation,$this->user_model->getKWHM($this->input->post('getRoomNo')));
+      $data = [];
+      $roominfo = $this->user_model->getRoomInfoM($this->input->post('getRoomNo'));
+      $tenantinfo = $this->user_model->getRoomTenantsInfoM($this->input->post('getRoomNo'));
+      $data = array_merge($data,$roominfo,$tenantinfo);
       echo json_encode($data);
     }
 

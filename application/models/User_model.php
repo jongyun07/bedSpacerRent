@@ -14,14 +14,19 @@
         }
         public function getListOfTenants(){
             $query = $this->db->query("SELECT t.id, t.first_name, t.last_name, t.phone_number, t.payment_status, t.board_date, r.room_number FROM tenant t JOIN room r on t.room_id = r.id");
-            $data =$query->result_array();
+            $data = $query->result_array();
             return $data;
         }
 
-        public function getInitialValueM($roomno){
-            $this->db->select('room_value');
-            $query = $this->db->get_where('room',array('room_number' => $roomno));
-            return $query->row_array();
+        public function getRoomInfoM($roomno){
+            $query = $this->db->query("SELECT r.room_value,r.occupied,r.electricity_kwh FROM room r WHERE room_number = '$roomno'");
+            $data = $query->row_array(); 
+            return $data;
+        }
+        public function getRoomTenantsInfoM($roomno){
+            $query = $this->db->query("SELECT CONCAT(t.first_name,' ',t.last_name) AS tenants FROM room r JOIN tenant t ON t.room_id = r.id WHERE room_number = '$roomno'");
+            $data = $query->row_array(); 
+            return $data;
         }
 
         public function checkOccupationM($roomno){

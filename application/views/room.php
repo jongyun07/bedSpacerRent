@@ -21,6 +21,7 @@
                     ?>
                     <div class="row" style="margin:0px 0px;">
                     <?php foreach ($roomLists as $room){
+                        $c = explode("-",$room['room_number']);
                         // $date1 = strtotime(date("Y/m/d"));
                         // $date2 = strtotime($room['actual_due_date']);
                         // $secs = $date2 - $date1;
@@ -28,7 +29,7 @@
                         // $blinkMe = $days <= 10 && $days >=1  ? "blink_me" : "";
                         // $delayed = $days < 0 && $room['occupied'] != 0? "Delayed" : "";
                         $box_color = $room['occupied'] >= $room['capacity'] ? "btn-warning" : "btn-success";
-                        if($room['floor']==1){
+                        if($c[1]<112){
                         ?> 
                         
                         <button class="btn <?php echo $box_color;?>" id="roomCapacity" style="margin:5px;font-size:20px; width:190px; height:190px;" onclick="viewRoomDetails('<?php echo $room['room_number']?>','<?php echo $room['capacity']-$room['occupied'];?>')">
@@ -57,13 +58,14 @@
                     ?>
                     <div class="row" style="margin:0px 0px;">
                     <?php foreach ($roomLists as $room){
+                        $c = explode("-",$room['room_number']);
                         //  $date1 = strtotime(date("Y/m/d"));
                         //  $date2 = strtotime($room['actual_due_date']);
                         //  $secs = $date2 - $date1;
                         //  $days = $secs / 86400;
                         //  $blinkMe = $days <= 10 && $days >=1  ? "blink_me" : "";
                         $box_color = $room['occupied'] >= $room['capacity'] ? "btn-danger" : "btn-success";
-                        if($room['floor']==2){
+                        if($c[1]>112){
                         ?> 
                         
                         <button class="btn <?php echo $box_color;?>" id="roomCapacity" style="margin:5px;font-size:20px; width:190px; height:190px;" onclick="viewRoomDetails('<?php echo $room['room_number']?>','<?php echo $room['capacity']-$room['occupied'];?>')">
